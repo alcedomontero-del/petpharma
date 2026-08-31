@@ -1,0 +1,127 @@
+PETPHARMA — GUÍA RÁPIDA (LEEME)
+================================
+
+QUÉ ES ESTO
+-----------
+Una farmacia veterinaria hecha 100% en HTML + CSS + JavaScript (sin React,
+sin Vite, sin build, sin servidor de pago). Corre igual de bien abriendo
+el archivo index.html con doble clic que subida a internet.
+
+CÓMO PROBARLA AHORA MISMO (modo demo, sin Firebase)
+----------------------------------------------------
+1. Abre index.html haciendo doble clic (o con Live Server de VS Code).
+2. Verás un aviso amarillo "🧪 Modo demostración local" — todo se guarda
+   en tu navegador (localStorage), nada sale a internet todavía.
+3. Para entrar al panel de administración: botón "🔐 Acceso Personal" o
+   ve directo a login.html. Usuario demo:
+        correo:      admin@petpharma.com
+        contraseña:  admin123
+4. Desde el panel puedes: aprobar/rechazar recetas, gestionar pedidos,
+   agregar/editar/eliminar medicamentos, crear categorías nuevas con su
+   propio emoji, editar TODOS los textos públicos (encabezado, anuncio,
+   sección principal, pie de página) en la pestaña "Contenido del Sitio",
+   y usar la Calculadora de Dosis interna.
+
+ESTADO ACTUAL DE ESTE PAQUETE (léelo con atención)
+---------------------------------------------------
+Esta versión (v1_3) ya pasó dos rondas de auditoría estática completa
+(sintaxis de todo el JS, balance de HTML, cruce de cada id y cada función
+usada desde botones/formularios) y una tercera ronda enfocada en cómo se
+comporta el código específicamente en PRODUCCIÓN real con Firebase (no
+solo en el modo demo local), donde se encontraron y corrigieron tres
+fallas reales que el modo demo no dejaba ver — detalladas abajo. Sigue
+sin probarse clic-por-clic en un navegador real (este entorno no tiene
+uno disponible); si retomas la conversación y quieres que sigamos
+iterando, dímelo.
+
+TRES FALLAS REALES CORREGIDAS EN ESTA RONDA (solo se notaban con
+Firebase real, no en el modo demo — por eso no habían salido antes)
+---------------------------------------------------------------------
+1. Subir receta (Rx) no adjuntaba ninguna foto real. El formulario del
+   cliente pedía nombre, tutor, veterinario, etc., pero nunca tenía un
+   campo para la foto de la receta — siempre se guardaba una foto de
+   stock genérica, así que el regente jamás veía la receta real del
+   cliente al aprobar o rechazar. Ahora el formulario exige adjuntar la
+   foto y esa es la que ve el administrador.
+2. El panel de administrador podía expulsar al administrador a
+   login.html aunque sí tuviera sesión válida, cada vez que abriera o
+   recargara admin.html ya publicado en Firebase real (Firebase tarda un
+   instante en confirmar la sesión guardada, y el código leía eso antes
+   de tiempo). No pasaba en el modo demo porque ahí la sesión se lee al
+   instante. Corregido esperando la confirmación real de Firebase.
+3. El descuento de stock al confirmar un pedido habría fallado siempre
+   en Firebase real (aunque nunca en el modo demo): las reglas de
+   seguridad solo dejaban escribir en el catálogo a un administrador con
+   sesión, pero quien descuenta el stock es el propio cliente sin sesión
+   al pagar. Esto habría hecho que el pedido SÍ se creara pero el
+   cliente viera un aviso de "no se pudo registrar el pedido" (falso) y
+   el stock nunca bajara de verdad. Corregido en firestore.rules: ahora
+   cualquiera puede bajar el stock de un producto (nunca subirlo ni
+   tocar otro campo), y solo el administrador puede cambiar cualquier
+   otra cosa.
+
+   ⚠️ Si ya habías publicado una versión anterior de firestore.rules en
+   tu proyecto Firebase real, tienes que volver a publicar el archivo
+   firestore.rules de ESTE paquete para que la corrección #3 tenga
+   efecto (ver sección de Firebase abajo, paso "c").
+
+CÓMO PUBLICARLA DE VERDAD CON FIREBASE Y CLOUDINARY
+-----------------------------------------------------
+Mientras la abras en tu computador (o cualquier "localhost"), todo es
+demo local. Para que sea real y varias personas puedan comprar/editar
+al mismo tiempo desde internet, sigue estos pasos UNA sola vez:
+
+1. FIREBASE (autenticación + base de datos):
+   a) Ve a https://console.firebase.google.com y crea un proyecto.
+   b) Activa "Authentication" > método "Correo/contraseña" > agrega un
+      usuario (ese será tu correo y clave de administrador reales).
+   c) Activa "Firestore Database" en modo nativo (NO modo compatible
+      con MongoDB) y publica el archivo firestore.rules incluido aquí
+      (Firestore > Reglas > pega el contenido > Publicar).
+   d) En "Configuración del proyecto" copia los valores (apiKey,
+      authDomain, projectId, etc.) y pégalos en js/config.js dentro de
+      FIREBASE_CONFIG.
+
+2. CLOUDINARY (fotos de los medicamentos):
+   a) Crea una cuenta gratis en https://cloudinary.com
+   b) Copia tu "Cloud Name" del dashboard.
+   c) Ve a Settings > Upload > Upload presets > Add upload preset,
+      ponlo en modo "Unsigned" y anota su nombre.
+   d) Pega ambos valores en js/config.js dentro de CLOUDINARY_CONFIG.
+
+3. Sube la carpeta completa a donde la vayas a alojar (Firebase Hosting,
+   GitHub Pages, tu propio hosting, etc.) — no hace falta "compilar"
+   nada, son archivos estáticos.
+
+4. Abre la página desde esa dirección real (ya NO "localhost") y el
+   aviso amarillo de demo desaparecerá solo: a partir de ahí todo se
+   guarda de verdad en Firebase/Cloudinary.
+
+SOBRE EL "STOCK" QUE SOLO MOSTRABA 1
+--------------------------------------
+Esa señal venía de la versión de prueba en React (carpeta src/, que ya
+no se usa). Ahí ProductCard.tsx mostraba "Últimas X un." cuando el stock
+de un producto bajaba a 5 o menos, pero el flujo de compra de esa
+versión de prueba nunca restaba el stock de verdad al confirmar un
+pedido, así que ese aviso podía quedar desactualizado o inconsistente.
+En esta versión nueva (100% HTML/CSS/JS) el stock:
+  - se descuenta de verdad cuando se confirma un pedido,
+  - no deja agregar al carrito más unidades de las que hay disponibles,
+  - y el aviso "¡Solo quedan X unidades!" siempre refleja el número
+    real guardado para ESE medicamento específico.
+
+QUÉ SE ELIMINÓ
+-----------------
+Se quitó todo lo que dependía de Vite/React/Node para "compilar" un
+servidor (carpeta src/, vite.config.ts, tsconfig.json, package.json,
+bun.lock, metadata.json y archivos propios de AI Studio) porque tú
+mismo indicaste que no vas a pagar servidores y que la idea era HTML +
+CSS + JS puro. Lo único "externo" que se usa son bibliotecas cargadas
+por internet sin instalación: Tailwind CSS (estilos) y, cuando publiques
+de verdad, el SDK de Firebase — ambas gratis.
+
+También se simplificó el login: ya no existen cuentas de "cliente"
+(tutor) por separado, porque no aportaban nada sin un backend real de
+pedidos por cuenta — cualquier persona compra y sube su receta sin
+necesidad de registrarse, igual que antes. Solo existe una cuenta:
+la del administrador/regente farmacéutico.

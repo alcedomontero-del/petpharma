@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Catálogo de medicamentos: cualquiera puede leer (es la tienda pública).
+    // Un administrador con sesión puede crear/editar/borrar cualquier campo.
+    // Un cliente SIN sesión (al confirmar un pedido) solo puede actualizar el
+    // campo "stock", y únicamente para bajarlo (nunca subirlo ni tocar ningún
+    // otro campo) — así el checkout público puede descontar stock real sin
+    // necesitar backend propio, sin poder alterar precios ni nombres.
+    match /products/{productId} {
+      allow read: if true;
+      allow create, delete: if request.auth != null;
+      allow update: if request.auth != null
+        || (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock']) &&
+          request.resource.data.stock is number &&
+          request.resource.data.stock >= 0 &&
+          request.resource.data.stock <= resource.data.stock
+        );
+    }
+
+    // Categorías (nombre + emoji): lectura pública, escritura solo admin.
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Contenido editable del sitio (encabezado, anuncio, hero, footer).
+    match /content/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Recetas Rx: cualquier cliente puede subir la suya (crear),
+    // pero solo el administrador puede leer la bandeja completa,
+    // actualizar el estado o borrar.
+    match /prescriptions/{rxId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Pedidos: cualquier cliente puede crear el suyo al pagar,
+    // pero solo el administrador puede leer/editar el listado completo.
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}

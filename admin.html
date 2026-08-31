@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - PetPharma</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+
+  <!-- ADMIN HEADER -->
+  <header class="bg-slate-950 text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-emerald-700 rounded-xl flex items-center justify-center font-black">🐾</div>
+        <div>
+          <h1 class="text-sm font-extrabold leading-tight">PetPharma <span class="text-amber-400">/ Admin</span></h1>
+          <p class="text-[10px] text-slate-400" id="adminUserName"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div id="badge-modo"></div>
+        <a href="index.html" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-700 transition-colors flex items-center gap-1.5">👁️ Ver Tienda</a>
+        <button id="btn-logout" class="bg-rose-900/50 hover:bg-rose-900 text-rose-200 text-xs font-bold px-3 py-1.5 rounded-xl border border-rose-800/50 transition-colors">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- KPI STATS -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div class="flex items-center justify-between text-slate-400 mb-1">
+          <span class="text-xs font-bold uppercase tracking-wider">Recetas por Validar</span><span>📋</span>
+        </div>
+        <div class="text-2xl font-black text-amber-600" id="statPendingRx">0</div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div class="flex items-center justify-between text-slate-400 mb-1">
+          <span class="text-xs font-bold uppercase tracking-wider">Pedidos en Curso</span><span>🚚</span>
+        </div>
+        <div class="text-2xl font-black text-sky-600" id="statActiveOrders">0</div>
+      </div>
+      <div class="bg-white rounded-2xl border border-rose-200 p-4" title="Pedidos con medicamento Rx que aún no se pueden despachar: falta que el cliente suba la receta o que tú la apruebes">
+        <div class="flex items-center justify-between text-slate-400 mb-1">
+          <span class="text-xs font-bold uppercase tracking-wider">Pedidos Sin Rx Aprobada</span><span>⚠️</span>
+        </div>
+        <div class="text-2xl font-black text-rose-600" id="statOrdersMissingRx">0</div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div class="flex items-center justify-between text-slate-400 mb-1">
+          <span class="text-xs font-bold uppercase tracking-wider">Total Facturación</span><span>💰</span>
+        </div>
+        <div class="text-2xl font-black text-emerald-700" id="statRevenue">$0.00</div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div class="flex items-center justify-between text-slate-400 mb-1">
+          <span class="text-xs font-bold uppercase tracking-wider">Stock Bajo (&lt;15)</span><span>⚠️</span>
+        </div>
+        <div class="text-2xl font-black text-rose-600" id="statLowStock">0</div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="bg-slate-900 p-1.5 rounded-2xl flex flex-wrap gap-1.5 text-xs">
+      <button id="nav-btn-prescriptions" onclick="switchAdminTab('prescriptions')" class="admin-nav-btn flex-1 py-2.5 px-3 rounded-xl bg-emerald-800 text-white transition-all flex items-center justify-center gap-1.5"><span>📋 Recetas Rx</span></button>
+      <button id="nav-btn-orders" onclick="switchAdminTab('orders')" class="admin-nav-btn flex-1 py-2.5 px-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5"><span>📦 Pedidos</span></button>
+      <button id="nav-btn-products" onclick="switchAdminTab('products')" class="admin-nav-btn flex-1 py-2.5 px-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5"><span>💊 Catálogo</span></button>
+      <button id="nav-btn-content" onclick="switchAdminTab('content')" class="admin-nav-btn flex-1 py-2.5 px-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5"><span>📝 Contenido del Sitio</span></button>
+      <button id="nav-btn-calculator" onclick="switchAdminTab('calculator')" class="admin-nav-btn flex-1 py-2.5 px-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5"><span>🩺 Calculadora de Dosis</span></button>
+    </div>
+
+    <!-- TAB 1: RECETAS -->
+    <div id="tab-content-prescriptions" class="admin-tab-content bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="p-5 border-b border-slate-100"><h3 class="font-extrabold text-sm">Bandeja de Recetas Rx Pendientes de Validación</h3></div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead class="bg-slate-50 text-slate-500 text-left">
+            <tr><th class="p-3.5">Código</th><th class="p-3.5">Mascota / Tutor</th><th class="p-3.5">Veterinario</th><th class="p-3.5">Medicamentos</th><th class="p-3.5">Estado</th><th class="p-3.5 text-right">Acciones</th></tr>
+          </thead>
+          <tbody id="adminRxTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: PEDIDOS -->
+    <div id="tab-content-orders" class="admin-tab-content hidden bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="p-5 border-b border-slate-100"><h3 class="font-extrabold text-sm">Gestión de Pedidos & Cadena de Frío</h3></div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead class="bg-slate-50 text-slate-500 text-left">
+            <tr><th class="p-3.5">Pedido</th><th class="p-3.5">Cliente</th><th class="p-3.5">Artículos</th><th class="p-3.5">Total</th><th class="p-3.5">Estado</th><th class="p-3.5 text-right">Temp.</th></tr>
+          </thead>
+          <tbody id="adminOrdersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: CATÁLOGO -->
+    <div id="tab-content-products" class="admin-tab-content hidden bg-white rounded-3xl border border-slate-200 overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+        <h3 class="font-extrabold text-sm">Catálogo & Stock de Medicamentos</h3>
+        <button onclick="openAddProductModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"><span>+ Nuevo Medicamento</span></button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead class="bg-slate-50 text-slate-500 text-left">
+            <tr><th class="p-3.5">Medicamento</th><th class="p-3.5">Categoría</th><th class="p-3.5">Precio</th><th class="p-3.5">Stock</th><th class="p-3.5">Condición</th><th class="p-3.5 text-right">Acciones</th></tr>
+          </thead>
+          <tbody id="adminProductsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: CONTENIDO DEL SITIO -->
+    <div id="tab-content-content" class="admin-tab-content hidden bg-white rounded-3xl border border-slate-200 p-5 space-y-4">
+      <h3 class="font-extrabold text-sm">Contenido Editable del Sitio Público</h3>
+      <p class="text-xs text-slate-500">Edita aquí los textos que ven tus clientes en la tienda: encabezado, barra de anuncios, sección principal y pie de página. Los cambios se aplican al instante.</p>
+      <form onsubmit="guardarContenidoSitio(event)" class="grid md:grid-cols-2 gap-4 text-xs">
+        <div class="space-y-3 bg-slate-50 rounded-2xl p-4">
+          <p class="font-extrabold text-slate-700">🏷️ Encabezado</p>
+          <div><label class="block font-bold text-slate-600 mb-1">Nombre de la farmacia</label><input id="cont-nombreFarmacia" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-600 mb-1">Eslogan / Tagline</label><input id="cont-tagline" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+        </div>
+        <div class="space-y-3 bg-slate-50 rounded-2xl p-4">
+          <p class="font-extrabold text-slate-700">📢 Barra de Anuncios</p>
+          <div><label class="block font-bold text-slate-600 mb-1">Texto del anuncio</label><input id="cont-anuncioTexto" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-600 mb-1">Teléfono / contacto de urgencias</label><input id="cont-anuncioTelefono" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+        </div>
+        <div class="space-y-3 bg-slate-50 rounded-2xl p-4 md:col-span-2">
+          <p class="font-extrabold text-slate-700">✨ Sección Principal (Hero)</p>
+          <div><label class="block font-bold text-slate-600 mb-1">Insignia superior</label><input id="cont-heroBadge" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-600 mb-1">Título principal</label><input id="cont-heroTitulo" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-600 mb-1">Descripción</label><textarea id="cont-heroDescripcion" rows="2" class="w-full border border-slate-300 rounded-xl p-2.5"></textarea></div>
+        </div>
+        <div class="space-y-3 bg-slate-50 rounded-2xl p-4 md:col-span-2">
+          <p class="font-extrabold text-slate-700">🛡️ Panel de Garantía</p>
+          <div><label class="block font-bold text-slate-600 mb-1">Título</label><input id="cont-garantiaTitulo" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div class="grid sm:grid-cols-3 gap-2">
+            <input id="cont-garantiaLinea1" class="w-full border border-slate-300 rounded-xl p-2.5" placeholder="Línea 1" />
+            <input id="cont-garantiaLinea2" class="w-full border border-slate-300 rounded-xl p-2.5" placeholder="Línea 2" />
+            <input id="cont-garantiaLinea3" class="w-full border border-slate-300 rounded-xl p-2.5" placeholder="Línea 3" />
+          </div>
+        </div>
+        <div class="space-y-3 bg-slate-50 rounded-2xl p-4 md:col-span-2">
+          <p class="font-extrabold text-slate-700">📄 Pie de Página</p>
+          <div><label class="block font-bold text-slate-600 mb-1">Nombre / línea principal</label><input id="cont-footerNombre" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-600 mb-1">Texto secundario</label><input id="cont-footerTexto" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+        </div>
+        <div class="md:col-span-2">
+          <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-3 rounded-xl transition-colors">Guardar Contenido del Sitio</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- TAB 5: CALCULADORA DE DOSIS (herramienta interna del administrador) -->
+    <div id="tab-content-calculator" class="admin-tab-content hidden bg-white rounded-3xl border border-slate-200 p-5 space-y-4">
+      <h3 class="font-extrabold text-sm">🩺 Calculadora Clínica de Dosis</h3>
+      <p class="text-xs text-slate-500">
+        Herramienta interna, no visible para los clientes. Si al agregar un medicamento configuraste su "primer formato" (mg/kg y frecuencia),
+        aparecerá aquí para calcular la dosis exacta según el peso del paciente. También puedes hacer un cálculo genérico manual.
+      </p>
+      <div class="max-w-md space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Medicamento:</label>
+          <select id="calcMedSelect" onchange="toggleCalcModoGenerico()" class="w-full border border-slate-300 rounded-xl p-2.5 font-medium"></select>
+        </div>
+        <div id="calc-panel-generico" class="grid grid-cols-2 gap-2 hidden">
+          <div><label class="block font-bold text-slate-600 mb-1">mg/kg</label><input type="number" step="0.01" id="calcGenericoMgKg" class="w-full border border-slate-300 rounded-xl p-2.5" placeholder="ej: 10" /></div>
+          <div><label class="block font-bold text-slate-600 mb-1">Frecuencia</label><input type="text" id="calcGenericoFrecuencia" class="w-full border border-slate-300 rounded-xl p-2.5" placeholder="ej: cada 12 horas" /></div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Peso del paciente (kg):</label>
+          <input type="number" id="calcWeight" value="10" step="0.5" class="w-full border border-slate-300 rounded-xl p-2.5 font-bold" />
+        </div>
+        <button onclick="calcularDosisAdmin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-2.5 rounded-xl transition-colors">Calcular Dosis</button>
+        <div id="calcResult" class="hidden bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-emerald-900 font-bold leading-relaxed"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: DETALLE DE RECETA -->
+  <div id="rxDetailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeRxModal()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"></div>
+    <div class="relative bg-white rounded-3xl max-w-lg w-full p-6 space-y-3 shadow-2xl z-10 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-extrabold text-sm">Detalle de Receta Rx</h3>
+        <button onclick="closeRxModal()" class="text-slate-400 hover:text-slate-700 text-base font-bold">✕</button>
+      </div>
+      <img id="rxModalImage" src="" class="w-full h-52 object-cover rounded-2xl bg-slate-100 cursor-pointer" title="Clic para ver foto completa" />
+      <p><strong>Mascota:</strong> <span id="rxModalPet"></span></p>
+      <p><strong>Veterinario:</strong> <span id="rxModalVet"></span></p>
+      <p><strong>Medicamentos:</strong> <span id="rxModalMeds"></span></p>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR / EDITAR MEDICAMENTO -->
+  <div id="addProductModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeAddProductModal()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"></div>
+    <div class="relative bg-white rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl z-10 text-xs max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="addProductModalTitle" class="font-extrabold text-sm">Agregar Medicamento</h3>
+        <button onclick="closeAddProductModal()" class="text-slate-400 hover:text-slate-700 text-base font-bold">✕</button>
+      </div>
+      <form id="form-producto" onsubmit="handleAddProductSubmit(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block font-bold text-slate-700 mb-1">Nombre del Medicamento *</label><input type="text" id="newProdName" required class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-700 mb-1">Marca / Laboratorio</label><input type="text" id="newProdBrand" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block font-bold text-slate-700 mb-1">Principio Activo</label><input type="text" id="newProdActive" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Categoría *</label>
+            <select id="newProdCategory" required class="w-full border border-slate-300 rounded-xl p-2.5"></select>
+          </div>
+        </div>
+
+        <!-- Panel para crear categoría nueva con selector de emoji -->
+        <div id="panel-nueva-categoria" class="hidden bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2">
+          <label class="block font-bold text-slate-700">Nombre de la nueva categoría</label>
+          <input type="text" id="nc-nombre" placeholder="ej: Oftalmología" class="w-full border border-slate-300 rounded-xl p-2.5" />
+          <label class="block font-bold text-slate-700">Elige un emoji para representarla</label>
+          <div id="emoji-grid" class="emoji-grid"></div>
+          <div class="flex gap-2 pt-1">
+            <button type="button" onclick="guardarNuevaCategoria()" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 rounded-xl">Crear Categoría</button>
+            <button type="button" onclick="cerrarPanelCategoria()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-xl">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- Administrar categorías existentes (borrar las que ya no se usen) -->
+        <div class="bg-slate-50 rounded-2xl p-3">
+          <button type="button" onclick="toggleGestionCategorias()" class="text-[11px] font-bold text-slate-600 hover:text-slate-900">⚙️ Administrar categorías existentes</button>
+          <div id="panel-gestion-categorias" class="hidden mt-2 space-y-1.5"></div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Especies *</label>
+          <p class="text-[10px] text-slate-400 mb-1.5">Marca todas las que apliquen — un mismo medicamento puede servir para varias especies, no hace falta subirlo más de una vez.</p>
+          <div class="flex flex-wrap gap-4 bg-slate-50 rounded-2xl p-3">
+            <label class="flex items-center gap-1.5 font-bold text-slate-700"><input type="checkbox" class="newProdSpecies w-4 h-4" value="perros" /> 🐕 Perros</label>
+            <label class="flex items-center gap-1.5 font-bold text-slate-700"><input type="checkbox" class="newProdSpecies w-4 h-4" value="gatos" /> 🐈 Gatos</label>
+            <label class="flex items-center gap-1.5 font-bold text-slate-700"><input type="checkbox" class="newProdSpecies w-4 h-4" value="equinos" /> 🐎 Equinos</label>
+            <label class="flex items-center gap-1.5 font-bold text-slate-700"><input type="checkbox" class="newProdSpecies w-4 h-4" value="aves" /> 🦜 Aves</label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div><label class="block font-bold text-slate-700 mb-1">Precio *</label><input type="number" step="0.01" id="newProdPrice" required placeholder="35.00" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-700 mb-1">Precio Original</label><input type="number" step="0.01" id="newProdOriginalPrice" placeholder="opcional" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-700 mb-1">Stock Uds *</label><input type="number" id="newProdStock" required placeholder="20" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+        </div>
+
+        <div class="flex items-center gap-6 py-1">
+          <label class="flex items-center gap-2 font-bold text-slate-700"><input type="checkbox" id="newProdRx" class="w-4 h-4" /> Requiere Receta (Rx)</label>
+          <label class="flex items-center gap-2 font-bold text-slate-700"><input type="checkbox" id="newProdCold" class="w-4 h-4" /> Requiere Cadena de Frío</label>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Descripción (opcional)</label>
+          <textarea id="newProdDescription" rows="2" placeholder="Información adicional para el cliente, presentación, etc." class="w-full border border-slate-300 rounded-xl p-2.5"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block font-bold text-slate-700 mb-1">Posología / Dosificación (texto libre)</label><input type="text" id="newProdDosage" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          <div><label class="block font-bold text-slate-700 mb-1">Indicaciones Terapéuticas</label><input type="text" id="newProdIndications" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+        </div>
+
+        <div class="bg-sky-50 border border-sky-200 rounded-2xl p-3 space-y-2">
+          <p class="font-extrabold text-sky-800">🩺 Primer formato para la Calculadora de Dosis (opcional)</p>
+          <p class="text-[11px] text-sky-700">Si lo completas, este medicamento aparecerá disponible en la Calculadora de Dosis del panel admin (pestaña "Calculadora de Dosis") para calcular automáticamente según el peso del paciente.</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div><label class="block font-bold text-slate-600 mb-1">mg por kg</label><input type="number" step="0.01" id="newProdDoseMgKg" placeholder="ej: 12.5" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+            <div><label class="block font-bold text-slate-600 mb-1">Frecuencia</label><input type="text" id="newProdDoseFreq" placeholder="ej: cada 12 horas" class="w-full border border-slate-300 rounded-xl p-2.5" /></div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Fotografía del Medicamento</label>
+          <div class="drop-zone-pp" onclick="document.getElementById('newProdImageFile').click()">
+            <img id="newProdImgPreview" class="hidden w-full h-32 object-cover rounded-xl mb-2" />
+            <p class="text-slate-500 text-[11px]">📷 Toca para elegir una foto desde tu dispositivo</p>
+          </div>
+          <input type="file" id="newProdImageFile" accept="image/*" class="hidden" />
+          <label class="block font-bold text-slate-700 mb-1 mt-2">o pega una URL de imagen (opcional)</label>
+          <input type="url" id="newProdImage" placeholder="https://..." class="w-full border border-slate-300 rounded-xl p-2.5" />
+        </div>
+
+        <button id="addProductSubmitBtn" type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-3 rounded-xl transition-colors">
+          Guardar Medicamento
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/env.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/boot.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
