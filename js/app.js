@@ -55,7 +55,7 @@ function renderCategoryFilters(categorias) {
     `<button onclick="filterCategory('todos')" class="cat-btn active px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border bg-emerald-700 text-white border-emerald-700 shadow-xs" data-cat="todos">Todos los Medicamentos</button>`,
     ...categorias.map(
       (c) =>
-        `<button onclick="filterCategory('${c.id}')" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border bg-white text-slate-700 border-slate-200 hover:bg-slate-50" data-cat="${c.id}">${c.emoji} ${window.escHtml(c.nombre)}</button>`
+        `<button onclick="filterCategory('${c.id}')" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border bg-white/5 text-emerald-100/70 border-white/10 hover:bg-white/10" data-cat="${c.id}">${c.emoji} ${window.escHtml(c.nombre)}</button>`
     ),
   ];
   cont.innerHTML = botones.join("");
@@ -86,9 +86,9 @@ function renderStoreProducts() {
 
   if (filtered.length === 0) {
     grid.innerHTML = `
-      <div class="col-span-full py-12 text-center bg-white rounded-3xl border border-slate-200 p-6">
-        <p class="text-slate-500 text-sm font-semibold">No se encontraron medicamentos para los filtros seleccionados.</p>
-        <button onclick="resetFilters()" class="mt-3 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold">
+      <div class="col-span-full py-12 text-center bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6">
+        <p class="text-emerald-100/60 text-sm font-semibold">No se encontraron medicamentos para los filtros seleccionados.</p>
+        <button onclick="resetFilters()" class="mt-3 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold">
           Restablecer Filtros
         </button>
       </div>`;
@@ -99,32 +99,32 @@ function renderStoreProducts() {
     const sinStock = (p.stock || 0) <= 0;
     const pocoStock = !sinStock && (p.stock || 0) <= 5;
     return `
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between hover:shadow-lg transition-all space-y-3 group">
+    <div class="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-4 flex flex-col justify-between hover:bg-white/10 hover:shadow-lg hover:shadow-black/20 transition-all space-y-3 group">
       <div class="relative">
         <img
           src="${p.image}"
           alt="${window.escAttr(p.name)}"
           onclick="openProductDetailModal('${p.id}')"
-          class="w-full h-40 object-cover rounded-xl bg-slate-100 mb-2 cursor-pointer group-hover:scale-102 transition-transform"
+          class="w-full h-40 object-cover rounded-xl bg-white/5 mb-2 cursor-pointer group-hover:scale-102 transition-transform"
         >
-        <button onclick="event.stopPropagation(); window.abrirLightbox('${window.escAttr(p.image)}', '${window.escAttr(p.name)}')" title="Ver foto completa" class="absolute bottom-3 right-2 bg-white/90 hover:bg-white text-slate-700 w-7 h-7 rounded-full shadow-xs flex items-center justify-center text-xs">🔍</button>
+        <button onclick="event.stopPropagation(); window.abrirLightbox('${window.escAttr(p.image)}', '${window.escAttr(p.name)}')" title="Ver foto completa" class="absolute bottom-3 right-2 bg-black/50 hover:bg-black/70 text-white w-7 h-7 rounded-full shadow-xs flex items-center justify-center text-xs">🔍</button>
         ${p.requiresPrescription ? '<span class="absolute top-2 left-2 bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">Rx Receta</span>' : '<span class="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">Venta Libre</span>'}
         ${p.requiresColdChain ? '<span class="absolute top-2 right-2 bg-sky-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">❄️ Frío (2-8°C)</span>' : ''}
       </div>
       <div>
-        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">${window.escHtml(p.brand)}</span>
-        <h4 onclick="openProductDetailModal('${p.id}')" class="text-xs font-extrabold text-slate-900 leading-snug cursor-pointer hover:text-emerald-700">${window.escHtml(p.name)}</h4>
-        <p class="text-[11px] text-emerald-700 font-bold mt-1">🧪 ${window.escHtml(p.activeSubstance)}</p>
-        <p class="text-[10px] text-slate-500 mt-1 line-clamp-2">${window.escHtml(p.dosage || p.indications || '')}</p>
-        ${pocoStock ? `<p class="text-[10px] text-rose-600 font-bold mt-1">⚠️ ¡Solo quedan ${p.stock} unidad${p.stock === 1 ? '' : 'es'}!</p>` : ''}
-        ${sinStock ? `<p class="text-[10px] text-slate-500 font-bold mt-1">Agotado temporalmente</p>` : ''}
+        <span class="text-[10px] uppercase font-bold text-emerald-300/50 tracking-wider">${window.escHtml(p.brand)}</span>
+        <h4 onclick="openProductDetailModal('${p.id}')" class="text-xs font-extrabold text-white leading-snug cursor-pointer hover:text-emerald-300">${window.escHtml(p.name)}</h4>
+        <p class="text-[11px] text-emerald-400 font-bold mt-1">🧪 ${window.escHtml(p.activeSubstance)}</p>
+        <p class="text-[10px] text-emerald-100/50 mt-1 line-clamp-2">${window.escHtml(p.dosage || p.indications || '')}</p>
+        ${pocoStock ? `<p class="text-[10px] text-rose-400 font-bold mt-1">⚠️ ¡Solo quedan ${p.stock} unidad${p.stock === 1 ? '' : 'es'}!</p>` : ''}
+        ${sinStock ? `<p class="text-[10px] text-emerald-200/40 font-bold mt-1">Agotado temporalmente</p>` : ''}
       </div>
-      <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+      <div class="pt-2 border-t border-white/10 flex items-center justify-between">
         <div>
-          <span class="text-base font-black text-slate-900">${window.formatearPrecio(p.price)}</span>
-          ${p.originalPrice ? `<span class="text-[11px] text-slate-400 line-through ml-1">${window.formatearPrecio(p.originalPrice)}</span>` : ''}
+          <span class="text-base font-black text-white">${window.formatearPrecio(p.price)}</span>
+          ${p.originalPrice ? `<span class="text-[11px] text-emerald-300/40 line-through ml-1">${window.formatearPrecio(p.originalPrice)}</span>` : ''}
         </div>
-        <button onclick="addToCart('${p.id}')" ${sinStock ? 'disabled' : ''} class="bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs transition-all flex items-center gap-1">
+        <button onclick="addToCart('${p.id}')" ${sinStock ? 'disabled' : ''} class="bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-600 disabled:cursor-not-allowed text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs transition-all flex items-center gap-1">
           <span>${sinStock ? 'Agotado' : '+ Agregar'}</span>
         </button>
       </div>
@@ -137,8 +137,8 @@ function filterSpecies(sp) {
   activeSpecies = sp;
   document.querySelectorAll(".species-btn").forEach((btn) => {
     btn.className = btn.dataset.species === sp
-      ? "species-btn active px-3.5 py-1.5 rounded-full text-xs font-bold border bg-slate-900 text-emerald-400 border-slate-900 shadow-xs"
-      : "species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
+      ? "species-btn active px-3.5 py-1.5 rounded-full text-xs font-bold border bg-emerald-500 text-slate-950 border-emerald-500 shadow-xs"
+      : "species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white/5 text-emerald-100/70 border-white/10 hover:bg-white/10";
   });
   renderStoreProducts();
 }
@@ -148,7 +148,7 @@ function filterCategory(cat) {
   document.querySelectorAll(".cat-btn").forEach((btn) => {
     btn.className = btn.dataset.cat === cat
       ? "cat-btn active px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border bg-emerald-700 text-white border-emerald-700 shadow-xs"
-      : "cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+      : "cat-btn px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border bg-white/5 text-emerald-100/70 border-white/10 hover:bg-white/10";
   });
   renderStoreProducts();
 }
@@ -231,7 +231,7 @@ function updateCartUI() {
   if (!list) return;
 
   if (cart.length === 0) {
-    list.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Tu carrito está vacío.</p>';
+    list.innerHTML = '<p class="text-xs text-emerald-200/40 text-center py-8">Tu carrito está vacío.</p>';
     if (totalEl) totalEl.innerText = window.formatearPrecio(0);
     if (rxNotice) rxNotice.classList.add("hidden");
     return;
@@ -246,17 +246,17 @@ function updateCartUI() {
     const prod = allProducts.find((p) => p.id === i.id);
     const stockMax = prod ? prod.stock : 999;
     return `
-      <div class="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs">
+      <div class="flex items-center justify-between bg-white/5 p-3 rounded-2xl border border-white/10 text-xs">
         <div class="flex-1 pr-2">
-          <p class="font-bold text-slate-900">${window.escHtml(i.name)}</p>
-          <p class="text-slate-500 text-[11px] font-medium">${window.formatearPrecio(i.price)} cada uno</p>
-          ${i.requiresPrescription ? '<span class="text-[9px] bg-rose-100 text-rose-800 font-bold px-1.5 py-0.2 rounded">Requiere Rx</span>' : ''}
-          ${i.requiresColdChain ? '<span class="text-[9px] bg-sky-100 text-sky-800 font-bold px-1.5 py-0.2 rounded ml-1">❄️ Frío</span>' : ''}
+          <p class="font-bold text-white">${window.escHtml(i.name)}</p>
+          <p class="text-emerald-200/50 text-[11px] font-medium">${window.formatearPrecio(i.price)} cada uno</p>
+          ${i.requiresPrescription ? '<span class="text-[9px] bg-rose-500/15 text-rose-300 font-bold px-1.5 py-0.2 rounded">Requiere Rx</span>' : ''}
+          ${i.requiresColdChain ? '<span class="text-[9px] bg-sky-500/15 text-sky-300 font-bold px-1.5 py-0.2 rounded ml-1">❄️ Frío</span>' : ''}
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="changeQty('${i.id}', -1)" class="w-6 h-6 bg-white border border-slate-200 rounded-lg font-bold text-slate-700 hover:bg-slate-100 flex items-center justify-center">-</button>
-          <span class="font-bold text-xs">${i.quantity}</span>
-          <button onclick="changeQty('${i.id}', 1)" ${i.quantity >= stockMax ? 'disabled title="No hay más stock disponible"' : ''} class="w-6 h-6 bg-white border border-slate-200 rounded-lg font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-30 flex items-center justify-center">+</button>
+          <button onclick="changeQty('${i.id}', -1)" class="w-6 h-6 bg-white/10 border border-white/10 rounded-lg font-bold text-white hover:bg-white/20 flex items-center justify-center">-</button>
+          <span class="font-bold text-xs text-white">${i.quantity}</span>
+          <button onclick="changeQty('${i.id}', 1)" ${i.quantity >= stockMax ? 'disabled title="No hay más stock disponible"' : ''} class="w-6 h-6 bg-white/10 border border-white/10 rounded-lg font-bold text-white hover:bg-white/20 disabled:opacity-30 flex items-center justify-center">+</button>
         </div>
       </div>`;
   }).join("");

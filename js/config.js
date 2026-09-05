@@ -17,19 +17,18 @@
  */
 
 window.FIREBASE_CONFIG = {
- apiKey: "AIzaSyAbz6tijfSzMv6kH0wSmskG1aqPQP2v8Ko",
-    authDomain: "petpharma-5cc38.firebaseapp.com",
-    projectId: "petpharma-5cc38",
-    storageBucket: "petpharma-5cc38.firebasestorage.app",
-    messagingSenderId: "738518033586",
-    appId: "1:738518033586:web:ba14b7300f0cae36a195ab",
-    measurementId: "G-YN2P3Y838E"
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_PROYECTO.firebaseapp.com",
+  projectId: "TU_PROYECTO",
+  storageBucket: "TU_PROYECTO.appspot.com",
+  messagingSenderId: "TU_SENDER_ID",
+  appId: "TU_APP_ID",
 };
 
 window.CLOUDINARY_CONFIG = {
   // Lo encuentras en el Dashboard de Cloudinary, arriba a la izquierda
-  cloudName: "kv4gbmx0",
+  cloudName: "TU_CLOUD_NAME",
   // Lo creas en Settings → Upload → Upload presets → Add upload preset
   // Debe estar configurado como "Unsigned" (sin firma)
-  uploadPreset: "petpharma",
+  uploadPreset: "TU_UPLOAD_PRESET",
 };

@@ -11,10 +11,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-emerald-200">
+<body class="bg-gradient-to-b from-emerald-950 via-teal-950 to-slate-950 bg-fixed text-emerald-50 antialiased min-h-screen flex flex-col selection:bg-emerald-500/30">
 
   <!-- TOP ANNOUNCEMENT BAR (editable desde el panel admin) -->
-  <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
+  <div class="bg-black/20 text-emerald-200/70 text-xs py-2 px-4 border-b border-white/10">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2 font-medium">
         <span id="cAnuncioTexto" class="text-emerald-400 font-bold"></span>
@@ -27,15 +27,15 @@
   </div>
 
   <!-- MAIN HEADER -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+  <header class="bg-emerald-950/70 backdrop-blur-md border-b border-white/10 sticky top-0 z-40 shadow-lg shadow-black/20">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
       <a href="index.html" class="flex items-center gap-3">
         <div class="w-10 h-10 bg-emerald-700 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-md">🐾</div>
         <div>
-          <h1 class="text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5 leading-tight">
-            <span id="cEncabezadoNombre">PetPharma</span> <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">Rx Vet</span>
+          <h1 class="text-lg font-extrabold text-white tracking-tight flex items-center gap-1.5 leading-tight">
+            <span id="cEncabezadoNombre">PetPharma</span> <span class="text-[10px] bg-emerald-500/15 text-emerald-300 font-bold px-2 py-0.5 rounded-full">Rx Vet</span>
           </h1>
-          <p class="text-[11px] text-slate-500 font-medium" id="cTagline">Farmacia Veterinaria Especializada</p>
+          <p class="text-[11px] text-emerald-200/50 font-medium" id="cTagline">Farmacia Veterinaria Especializada</p>
         </div>
       </a>
 
@@ -45,12 +45,12 @@
           id="searchInput"
           oninput="handleSearch(this.value)"
           placeholder="Buscar por principio activo, marca o nombre..."
-          class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 text-xs focus:bg-white focus:border-emerald-600 focus:outline-hidden transition-all text-slate-800"
+          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs focus:bg-white/10 focus:border-emerald-500 focus:outline-hidden transition-all text-emerald-50 placeholder-emerald-200/30"
         />
       </div>
 
       <div class="flex items-center gap-3">
-        <button onclick="openPrescriptionModal()" class="hidden sm:flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors">
+        <button onclick="openPrescriptionModal()" class="hidden sm:flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition-colors">
           <span>📋 Subir Receta</span>
         </button>
         <button onclick="toggleCart()" class="relative bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors">
@@ -64,8 +64,9 @@
   </header>
 
   <!-- HERO SECTION (editable desde el panel admin) -->
-  <section class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-950 text-white py-10 px-4 shadow-inner">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+  <section class="relative overflow-hidden bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-950 text-white py-10 px-4 shadow-inner">
+    <canvas id="heroCanvas3D" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+    <div class="relative z-10 max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
       <div class="space-y-3.5 max-w-2xl">
         <span id="cHeroBadge" class="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-bold"></span>
         <h2 id="cHeroTitulo" class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight"></h2>
@@ -91,20 +92,20 @@
   <!-- MAIN CATALOG -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
 
-    <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-2xs space-y-3.5">
+    <div class="bg-white/5 backdrop-blur-sm p-4 rounded-3xl border border-white/10 shadow-lg shadow-black/10 space-y-3.5">
 
       <!-- Species Filter -->
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">Especie:</span>
-        <button onclick="filterSpecies('todos')" class="species-btn active px-3.5 py-1.5 rounded-full text-xs font-bold border bg-slate-900 text-emerald-400 border-slate-900 shadow-xs" data-species="todos">🐾 Todas las Especies</button>
-        <button onclick="filterSpecies('perros')" class="species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white text-slate-600 border-slate-200 hover:bg-slate-100" data-species="perros">🐕 Perros</button>
-        <button onclick="filterSpecies('gatos')" class="species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white text-slate-600 border-slate-200 hover:bg-slate-100" data-species="gatos">🐈 Gatos</button>
-        <button onclick="filterSpecies('equinos')" class="species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white text-slate-600 border-slate-200 hover:bg-slate-100" data-species="equinos">🐎 Equinos</button>
-        <button onclick="filterSpecies('aves')" class="species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white text-slate-600 border-slate-200 hover:bg-slate-100" data-species="aves">🦜 Aves</button>
+        <span class="text-xs font-bold text-emerald-200/50 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">Especie:</span>
+        <button onclick="filterSpecies('todos')" class="species-btn active px-3.5 py-1.5 rounded-full text-xs font-bold border bg-emerald-500 text-slate-950 border-emerald-500 shadow-xs" data-species="todos">🐾 Todas las Especies</button>
+        <button onclick="filterSpecies('perros')" class="species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white/5 text-emerald-100/70 border-white/10 hover:bg-white/10" data-species="perros">🐕 Perros</button>
+        <button onclick="filterSpecies('gatos')" class="species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white/5 text-emerald-100/70 border-white/10 hover:bg-white/10" data-species="gatos">🐈 Gatos</button>
+        <button onclick="filterSpecies('equinos')" class="species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white/5 text-emerald-100/70 border-white/10 hover:bg-white/10" data-species="equinos">🐎 Equinos</button>
+        <button onclick="filterSpecies('aves')" class="species-btn px-3.5 py-1.5 rounded-full text-xs font-bold border bg-white/5 text-emerald-100/70 border-white/10 hover:bg-white/10" data-species="aves">🦜 Aves</button>
       </div>
 
       <!-- Categories Filter (100% dinámico desde el panel admin) -->
-      <div id="categoryFiltersContainer" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 border-t border-slate-100 pt-3">
+      <div id="categoryFiltersContainer" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 border-t border-white/10 pt-3">
         <!-- Inyectado por app.js -->
       </div>
     </div>
@@ -118,19 +119,19 @@
   <!-- CART LATERAL DRAWER -->
   <div id="cartDrawer" class="fixed inset-0 z-50 hidden">
     <div onclick="toggleCart(false)" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"></div>
-    <div class="fixed right-0 top-0 bottom-0 max-w-md w-full bg-white shadow-2xl flex flex-col z-10 p-6">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-        <h3 class="font-extrabold text-base text-slate-900 flex items-center gap-2"><span>🛍️ Carrito Farmacéutico</span></h3>
-        <button onclick="toggleCart(false)" class="text-slate-400 hover:text-slate-700 font-bold p-1 text-base">✕</button>
+    <div class="fixed right-0 top-0 bottom-0 max-w-md w-full bg-emerald-950/95 backdrop-blur-md shadow-2xl flex flex-col z-10 p-6 border-l border-white/10">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <h3 class="font-extrabold text-base text-white flex items-center gap-2"><span>🛍️ Carrito Farmacéutico</span></h3>
+        <button onclick="toggleCart(false)" class="text-emerald-300/50 hover:text-white font-bold p-1 text-base">✕</button>
       </div>
       <div id="cartItemsList" class="flex-1 overflow-y-auto py-4 space-y-3"></div>
-      <div id="cartRxNotice" class="hidden bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-800 font-medium">
+      <div id="cartRxNotice" class="hidden bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-200 font-medium">
         ⚠️ Tu pedido contiene medicamentos que requieren receta médica (Rx). El regente farmacéutico solicitará el documento antes de la entrega.
       </div>
-      <div class="border-t border-slate-100 pt-4 space-y-3">
-        <div class="flex justify-between text-sm font-black text-slate-900">
+      <div class="border-t border-white/10 pt-4 space-y-3">
+        <div class="flex justify-between text-sm font-black text-white">
           <span>Total del Pedido:</span>
-          <span id="cartTotal" class="text-emerald-700">$0.00</span>
+          <span id="cartTotal" class="text-emerald-400">$0.00</span>
         </div>
         <button onclick="openCheckoutModal()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-3 rounded-xl shadow-md transition-colors text-xs uppercase tracking-wider">
           Finalizar Pedido
@@ -142,27 +143,27 @@
   <!-- CHECKOUT MODAL -->
   <div id="checkoutModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
     <div onclick="closeCheckoutModal()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"></div>
-    <div class="relative bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl z-10 text-xs">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-extrabold text-sm text-slate-900">Confirmación y Entrega a Domicilio</h3>
-        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-700 text-base font-bold">✕</button>
+    <div class="relative bg-emerald-950/95 backdrop-blur-md border border-white/10 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl z-10 text-xs">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h3 class="font-extrabold text-sm text-white">Confirmación y Entrega a Domicilio</h3>
+        <button onclick="closeCheckoutModal()" class="text-emerald-300/50 hover:text-white text-base font-bold">✕</button>
       </div>
       <form onsubmit="handleCheckoutSubmit(event)" class="space-y-3">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Nombre Completo del Tutor *</label>
-          <input type="text" id="chkName" required placeholder="ej: Carlos Mendoza" class="w-full border border-slate-300 rounded-xl p-2.5" />
+          <label class="block font-bold text-emerald-100/80 mb-1">Nombre Completo del Tutor *</label>
+          <input type="text" id="chkName" required placeholder="ej: Carlos Mendoza" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5" />
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Teléfono de Contacto / WhatsApp *</label>
-          <input type="tel" id="chkPhone" required placeholder="+1 (809) 555-1920" class="w-full border border-slate-300 rounded-xl p-2.5" />
+          <label class="block font-bold text-emerald-100/80 mb-1">Teléfono de Contacto / WhatsApp *</label>
+          <input type="tel" id="chkPhone" required placeholder="+1 (809) 555-1920" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5" />
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Dirección de Entrega *</label>
-          <input type="text" id="chkAddress" required placeholder="Calle, Número, Edificio, Sector" class="w-full border border-slate-300 rounded-xl p-2.5" />
+          <label class="block font-bold text-emerald-100/80 mb-1">Dirección de Entrega *</label>
+          <input type="text" id="chkAddress" required placeholder="Calle, Número, Edificio, Sector" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5" />
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Notas de Entrega / Indicaciones Especiales</label>
-          <textarea id="chkNotes" rows="2" placeholder="ej: Tocar timbre en recepción..." class="w-full border border-slate-300 rounded-xl p-2.5"></textarea>
+          <label class="block font-bold text-emerald-100/80 mb-1">Notas de Entrega / Indicaciones Especiales</label>
+          <textarea id="chkNotes" rows="2" placeholder="ej: Tocar timbre en recepción..." class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5"></textarea>
         </div>
         <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-3 rounded-xl transition-colors">
           Confirmar Pedido (Pago Contra Entrega)
@@ -174,44 +175,44 @@
   <!-- PRESCRIPTION UPLOAD MODAL -->
   <div id="prescriptionModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
     <div onclick="closePrescriptionModal()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"></div>
-    <div class="relative bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl z-10 text-xs">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-extrabold text-sm text-slate-900">Validar Prescripción Médica Veterinaria (Rx)</h3>
-        <button onclick="closePrescriptionModal()" class="text-slate-400 hover:text-slate-700 text-base font-bold">✕</button>
+    <div class="relative bg-emerald-950/95 backdrop-blur-md border border-white/10 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl z-10 text-xs">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h3 class="font-extrabold text-sm text-white">Validar Prescripción Médica Veterinaria (Rx)</h3>
+        <button onclick="closePrescriptionModal()" class="text-emerald-300/50 hover:text-white text-base font-bold">✕</button>
       </div>
       <form onsubmit="handlePrescriptionSubmit(event)" class="space-y-3">
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Nombre de Mascota *</label>
-            <input type="text" id="rxPetName" required placeholder="ej: Thor" class="w-full border border-slate-300 rounded-xl p-2.5" />
+            <label class="block font-bold text-emerald-100/80 mb-1">Nombre de Mascota *</label>
+            <input type="text" id="rxPetName" required placeholder="ej: Thor" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5" />
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Nombre del Tutor *</label>
-            <input type="text" id="rxOwnerName" required placeholder="ej: Carlos Mendoza" class="w-full border border-slate-300 rounded-xl p-2.5" />
+            <label class="block font-bold text-emerald-100/80 mb-1">Nombre del Tutor *</label>
+            <input type="text" id="rxOwnerName" required placeholder="ej: Carlos Mendoza" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5" />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Teléfono Tutor *</label>
-            <input type="tel" id="rxOwnerPhone" required placeholder="+1 (809) 555-1920" class="w-full border border-slate-300 rounded-xl p-2.5" />
+            <label class="block font-bold text-emerald-100/80 mb-1">Teléfono Tutor *</label>
+            <input type="tel" id="rxOwnerPhone" required placeholder="+1 (809) 555-1920" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5" />
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Médico Veterinario *</label>
-            <input type="text" id="rxVetName" required placeholder="Dr. Manuel Santos" class="w-full border border-slate-300 rounded-xl p-2.5" />
+            <label class="block font-bold text-emerald-100/80 mb-1">Médico Veterinario *</label>
+            <input type="text" id="rxVetName" required placeholder="Dr. Manuel Santos" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5" />
           </div>
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Matrícula / Licencia del Veterinario *</label>
-          <input type="text" id="rxVetLicense" required placeholder="MED-VET-8492" class="w-full border border-slate-300 rounded-xl p-2.5" />
+          <label class="block font-bold text-emerald-100/80 mb-1">Matrícula / Licencia del Veterinario *</label>
+          <input type="text" id="rxVetLicense" required placeholder="MED-VET-8492" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5" />
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Medicamentos Indicados en la Receta *</label>
-          <textarea id="rxMedicines" required rows="2" placeholder="ej: Bravecto 20-40kg (1 tableta), Apoquel 16mg" class="w-full border border-slate-300 rounded-xl p-2.5"></textarea>
+          <label class="block font-bold text-emerald-100/80 mb-1">Medicamentos Indicados en la Receta *</label>
+          <textarea id="rxMedicines" required rows="2" placeholder="ej: Bravecto 20-40kg (1 tableta), Apoquel 16mg" class="w-full bg-white/5 border border-white/15 text-white placeholder-emerald-200/30 rounded-xl p-2.5"></textarea>
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Foto de la Receta *</label>
-          <input type="file" id="rxFile" accept="image/*" capture="environment" required class="w-full border border-slate-300 rounded-xl p-2 text-[11px]" />
-          <p class="text-[10px] text-slate-400 mt-1">Sube una foto legible de la receta firmada por el veterinario.</p>
+          <label class="block font-bold text-emerald-100/80 mb-1">Foto de la Receta *</label>
+          <input type="file" id="rxFile" accept="image/*" capture="environment" required class="w-full bg-white/5 border border-white/15 text-white rounded-xl p-2 text-[11px]" />
+          <p class="text-[10px] text-emerald-300/40 mt-1">Sube una foto legible de la receta firmada por el veterinario.</p>
         </div>
         <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-2.5 rounded-xl transition-colors">
           Enviar Receta para Aprobación
@@ -223,35 +224,35 @@
   <!-- PRODUCT DETAIL MODAL -->
   <div id="productDetailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
     <div onclick="closeProductDetailModal()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"></div>
-    <div class="relative bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl z-10 text-xs max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-extrabold text-sm text-slate-900" id="modalProdName"></h3>
-        <button onclick="closeProductDetailModal()" class="text-slate-400 hover:text-slate-700 text-base font-bold">✕</button>
+    <div class="relative bg-emerald-950/95 backdrop-blur-md border border-white/10 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl z-10 text-xs max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h3 class="font-extrabold text-sm text-white" id="modalProdName"></h3>
+        <button onclick="closeProductDetailModal()" class="text-emerald-300/50 hover:text-white text-base font-bold">✕</button>
       </div>
       <div class="flex flex-col sm:flex-row gap-4">
         <div class="relative w-full sm:w-44 shrink-0">
-          <img id="modalProdImg" src="" class="w-full h-44 object-cover rounded-2xl bg-slate-100 cursor-pointer" title="Clic para ver foto completa" />
-          <span class="absolute bottom-2 right-2 bg-white/90 text-slate-700 w-7 h-7 rounded-full shadow-xs flex items-center justify-center text-xs pointer-events-none">🔍</span>
+          <img id="modalProdImg" src="" class="w-full h-44 object-cover rounded-2xl bg-white/5 cursor-pointer" title="Clic para ver foto completa" />
+          <span class="absolute bottom-2 right-2 bg-black/50 text-white w-7 h-7 rounded-full shadow-xs flex items-center justify-center text-xs pointer-events-none">🔍</span>
         </div>
         <div class="space-y-2 flex-1">
-          <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider" id="modalProdBrand"></p>
+          <p class="text-[11px] text-emerald-300/50 font-bold uppercase tracking-wider" id="modalProdBrand"></p>
           <p class="text-xs text-emerald-700 font-bold" id="modalProdActive"></p>
-          <div class="text-xl font-black text-slate-900" id="modalProdPrice"></div>
+          <div class="text-xl font-black text-white" id="modalProdPrice"></div>
           <div>
-            <p class="font-bold text-slate-700">Posología / Dosificación:</p>
-            <p class="text-slate-600" id="modalProdDosage"></p>
+            <p class="font-bold text-emerald-100/80">Posología / Dosificación:</p>
+            <p class="text-emerald-100/60" id="modalProdDosage"></p>
           </div>
           <div>
-            <p class="font-bold text-slate-700">Indicaciones Terapéuticas:</p>
-            <p class="text-slate-600" id="modalProdIndications"></p>
+            <p class="font-bold text-emerald-100/80">Indicaciones Terapéuticas:</p>
+            <p class="text-emerald-100/60" id="modalProdIndications"></p>
           </div>
           <div id="modalProdDescriptionBox" class="hidden">
-            <p class="font-bold text-slate-700">Descripción:</p>
-            <p class="text-slate-600" id="modalProdDescription"></p>
+            <p class="font-bold text-emerald-100/80">Descripción:</p>
+            <p class="text-emerald-100/60" id="modalProdDescription"></p>
           </div>
         </div>
       </div>
-      <div class="border-t border-slate-100 pt-3">
+      <div class="border-t border-white/10 pt-3">
         <button id="modalProdAddBtn" class="w-full bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-extrabold py-3 rounded-xl transition-colors">
           Agregar al Carrito de Compras
         </button>
@@ -260,17 +261,21 @@
   </div>
 
   <!-- FOOTER (editable desde el panel admin) -->
-  <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-12">
+  <footer class="bg-black/20 text-emerald-200/50 text-xs py-8 border-t border-white/10 mt-12">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div>
         <p class="text-white font-bold" id="cFooterNombre"></p>
-        <p class="text-slate-500 text-[11px]" id="cFooterTexto"></p>
+        <p class="text-emerald-200/40 text-[11px]" id="cFooterTexto"></p>
       </div>
       <div class="flex items-center gap-4 text-[11px]">
         <a href="login.html" class="text-amber-400 hover:underline">Panel Regente</a>
       </div>
     </div>
   </footer>
+
+  <!-- Fondo 3D decorativo del hero (no depende de env/config/app, es puramente visual) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/hero3d.js"></script>
 
   <!-- Scripts: el orden importa (env -> config -> boot -> ui -> app) -->
   <script src="js/env.js"></script>
