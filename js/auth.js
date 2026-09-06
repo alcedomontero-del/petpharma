@@ -60,7 +60,17 @@ window.requerirSesionAdmin = function (callback) {
         window.location.href = "login.html";
         return;
       }
-      callback(user);
+      // callback(user) carga categorías/productos/contenido/recetas/pedidos
+      // y es async — si Firestore no conecta, sin este try/catch el error
+      // quedaba solo en consola y el panel se veía "colgado" sin explicar
+      // nada. Promise.resolve(...) atrapa tanto el throw síncrono como el
+      // rechazo de la promesa.
+      Promise.resolve(callback(user)).catch((error) => {
+        console.error("Error cargando el panel de administración:", error);
+        if (typeof window.avisarErrorConexion === "function") {
+          window.avisarErrorConexion(error);
+        }
+      });
     });
   });
 };

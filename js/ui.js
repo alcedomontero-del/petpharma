@@ -40,7 +40,7 @@ window.linkWhatsApp = function (telefono) {
   return `https://wa.me/${digitos}`;
 };
 
-window.mostrarToast = function (mensaje, tipo) {
+window.mostrarToast = function (mensaje, tipo, duracionMs) {
   let toast = document.getElementById("toast-global");
   if (!toast) {
     toast = document.createElement("div");
@@ -53,7 +53,28 @@ window.mostrarToast = function (mensaje, tipo) {
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => {
     toast.classList.remove("show");
-  }, 3200);
+  }, duracionMs || 3200);
+};
+
+// Traduce un error de Firebase/Firestore a un mensaje entendible y lo
+// muestra en un toast con más tiempo en pantalla que uno normal (los
+// errores de conexión al cargar la página son fáciles de perderse si
+// desaparecen en 3 segundos). Se usa desde boot.js y auth.js cada vez que
+// falla algo al hablar con la base de datos.
+window.avisarErrorConexion = function (error) {
+  const codigo = error && error.code ? String(error.code) : "";
+  let mensaje;
+  if (codigo.includes("unavailable")) {
+    mensaje =
+      "No se pudo conectar con la base de datos. Revisa tu conexión a internet; si usas un bloqueador de anuncios, VPN o antivirus, prueba desactivarlo y recargar la página.";
+  } else if (codigo.includes("permission-denied")) {
+    mensaje = "No tienes permiso para esta acción. Verifica que iniciaste sesión como administrador.";
+  } else if (codigo.includes("unauthenticated")) {
+    mensaje = "Tu sesión expiró o no es válida. Inicia sesión de nuevo.";
+  } else {
+    mensaje = (error && error.message) || "Ocurrió un error inesperado. Intenta de nuevo.";
+  }
+  window.mostrarToast(mensaje, "error", 7000);
 };
 
 // ---------- Lupa / visor de foto completa (lightbox) ----------

@@ -38,11 +38,28 @@
 
   // Utilidad para que las páginas esperen a que window.DB exista,
   // sin importar si el evento ya pasó o no.
+  //
+  // El callback se ejecuta dentro de un try/catch que también atrapa
+  // rechazos de promesas (los callbacks suelen ser async): así, si falla
+  // la conexión a Firestore (o cualquier otra cosa) al cargar la tienda o
+  // el panel admin, en vez de quedar como un error silencioso solo visible
+  // en la consola del navegador, se avisa de forma visible con
+  // window.avisarErrorConexion (definido en ui.js).
   window.cuandoDBListo = function (callback) {
+    function ejecutarConProteccion() {
+      Promise.resolve()
+        .then(() => callback())
+        .catch((error) => {
+          console.error("Error usando la base de datos:", error);
+          if (typeof window.avisarErrorConexion === "function") {
+            window.avisarErrorConexion(error);
+          }
+        });
+    }
     if (window.DB) {
-      callback();
+      ejecutarConProteccion();
     } else {
-      window.addEventListener("db-listo", () => callback(), { once: true });
+      window.addEventListener("db-listo", ejecutarConProteccion, { once: true });
     }
   };
 })();

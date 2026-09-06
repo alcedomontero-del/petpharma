@@ -22,7 +22,7 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore,
+  initializeFirestore,
   collection,
   addDoc,
   setDoc,
@@ -37,7 +37,19 @@ import {
 
 const app = initializeApp(window.FIREBASE_CONFIG);
 const auth = getAuth(app);
-const db = getFirestore(app);
+
+// Se usa initializeFirestore (en vez de getFirestore) forzando detección
+// automática de "long polling" y desactivando fetch streams. El canal de
+// conexión normal de Firestore (WebChannel por streaming) es el que suelen
+// bloquear silenciosamente ciertos antivirus, VPNs, proxies corporativos y
+// extensiones de bloqueo de anuncios — el síntoma es exactamente
+// "Failed to get document because the client is offline" aunque el resto de
+// internet (incluido Firebase Auth) funcione normal. Este ajuste resuelve la
+// gran mayoría de esos casos sin pedirle nada al usuario final.
+const db = initializeFirestore(app, {
+  experimentalAutoDetectLongPolling: true,
+  useFetchStreams: false,
+});
 
 async function subirImagenCloudinary(archivo) {
   if (!archivo) return "";

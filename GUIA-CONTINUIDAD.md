@@ -327,6 +327,75 @@ cruce de `getElementById` en `admin.js` contra `admin.html` sin
 faltantes, cruce de funciones invocadas desde `onclick`/`onchange`
 contra funciones definidas sin faltantes.
 
+## v1_7 — corrección de conexión real a Firestore ("client is offline")
+El usuario reportó: con Firebase Auth funcionando (login exitoso), no se
+guardaban ni fotos ni textos de productos desde el panel admin. Diagnóstico
+guiado paso a paso en el chat, en este orden, ANTES de tocar código:
+
+1. Se revisó `config.js`: credenciales reales cargadas correctamente (no
+   placeholders), proyecto `petpharma-5cc38`.
+2. El error de consola exacto que dio el usuario fue
+   `FirebaseError: Failed to get document because the client is offline`
+   en `app.js:15` — es decir, fallaba ya al cargar la TIENDA PÚBLICA
+   (`getContenido()` en `renderContenidoEditable`), no solo al guardar en
+   el admin. Esto descartó que fuera específico del flujo de guardado.
+3. El usuario compartió el contenido real de `firestore.rules` publicado
+   en su consola de Firebase: coincide exactamente con el de este
+   proyecto → se descartó reglas no publicadas y base de datos no creada
+   (si no existiera, no habría pestaña de Reglas para pegar nada).
+4. El usuario subió `petpharma_v1_6.zip` pensando que "esa sí funcionaba".
+   Se hizo diff completo contra el paquete actual: `env.js`, `boot.js`,
+   `firebase-real.js`, `auth.js`, `admin.js`, `local-db.js`, `ui.js` y
+   `firestore.rules` son BYTE POR BYTE IDÉNTICOS entre ambas versiones —
+   la única diferencia real es CSS/tema visual y que el `config.js` de
+   v1_6 tenía placeholders sin rellenar (`TU_API_KEY`, etc.), lo cual
+   significa que v1_6 JAMÁS se conectó a Firebase real: cuando "funcionaba"
+   era porque `env.js` la mandaba a `local-db.js` (demo). Se descartó así
+   cualquier regresión de código — el proyecto nunca había sido probado
+   contra Firebase real hasta ahora.
+5. Con reglas+DB confirmadas OK y código sin regresión, el diagnóstico se
+   redujo a: (a) el canal de streaming que usa Firestore por defecto
+   siendo bloqueado por algo del lado del cliente (antivirus, VPN,
+   extensión, proxy) ya que Auth sí conecta con otro canal, o (b) la API
+   key restringida en Google Cloud sin incluir Cloud Firestore API. El
+   usuario pidió avanzar y corregir el código directamente en vez de
+   seguir depurando manualmente, ofreciendo crear un proyecto Firebase
+   nuevo si hiciera falta.
+
+Cambios implementados en este paquete:
+- `js/firebase-real.js`: `getFirestore(app)` → `initializeFirestore(app, {
+  experimentalAutoDetectLongPolling: true, useFetchStreams: false })`.
+  Es el fix estándar recomendado por Firebase para exactamente este
+  síntoma cuando el canal WebChannel normal es bloqueado por el cliente.
+- `js/boot.js`: `window.cuandoDBListo` ahora envuelve el callback en
+  `Promise.resolve().then().catch()`, así cualquier fallo (sync o async)
+  se reporta en vez de quedar como "Uncaught (in promise)" silencioso.
+- `js/auth.js`: `requerirSesionAdmin` ahora también atrapa el error del
+  `callback(user)` async (antes corría dentro de `onAuthChange` sin
+  ningún try/catch, así que el wrapper de `boot.js` no lo cubría).
+- `js/ui.js`: nueva `window.avisarErrorConexion(error)` que traduce
+  `error.code` de Firebase (`unavailable`, `permission-denied`,
+  `unauthenticated`) a mensajes en español entendibles para el
+  admin/cliente, mostrados con `mostrarToast(..., "error", 7000)` (7s en
+  vez de los 3.2s normales, para que no se pierda un error de carga de
+  página). `mostrarToast` ahora acepta un tercer parámetro opcional de
+  duración, retrocompatible (default sigue siendo 3200ms).
+
+Revalidado: `node --check` en los 9 `.js` (incluyendo `firebase-real.js`
+como módulo ES vía copia `.mjs`) sin errores; los 3 HTML siguen
+balanceados. No se tocó ningún HTML ni ningún id/función invocada desde
+`onclick`/`onchange`, así que no hace falta re-cruzar esa auditoría.
+
+Pendiente de que el usuario confirme en su navegador real:
+- Si el fix de long-polling resuelve la conexión, debería funcionar todo
+  (contenido público, guardar productos, fotos) sin tocar nada más.
+- Si sigue igual: revisar restricciones de la API key en Google Cloud
+  Console (Credenciales > API key > "Restricciones de API" → confirmar
+  que "Cloud Firestore API" esté permitida junto a Identity Toolkit), y
+  si aun así persiste, el usuario ya aceptó crear un proyecto Firebase
+  nuevo desde cero como última opción — pasos para eso ya están en
+  LEEME.txt sección "CORRECCIÓN v1_7".
+
 ## Pendiente / siguiente paso si retomas esto
 1. Cuando el usuario (u otra sesión) pueda abrir esto en un navegador
    real, probar de punta a punta: agregar/editar/eliminar producto

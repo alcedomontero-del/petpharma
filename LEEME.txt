@@ -65,6 +65,39 @@ Firebase real, no en el modo demo — por eso no habían salido antes)
    firestore.rules de ESTE paquete para que la corrección #3 tenga
    efecto (ver sección de Firebase abajo, paso "c").
 
+CORRECCIÓN v1_7 — "Failed to get document because the client is offline"
+--------------------------------------------------------------------------
+Si conectaste Firebase real (el login funcionaba) pero no se guardaban ni
+fotos ni textos de productos, y en la consola del navegador (F12) veías
+exactamente ese error: no era un problema de tus credenciales ni de las
+reglas de Firestore. Firestore usa por defecto un canal de conexión por
+streaming que algunos antivirus, VPNs, proxies de oficina/colegio y
+bloqueadores de anuncios interrumpen sin avisar — mientras que el login
+(Firebase Auth) usa un canal distinto que sí pasa, por eso uno funcionaba
+y el otro no.
+
+Qué se corrigió en js/firebase-real.js: ahora se fuerza detección
+automática de "long polling" en vez del canal por streaming normal, lo
+cual resuelve la gran mayoría de estos casos sin que tengas que cambiar
+nada de tu red. También se agregó manejo de errores centralizado
+(js/boot.js, js/auth.js, js/ui.js): si algo falla al conectar con la base
+de datos, ahora aparece un aviso claro en pantalla (7 segundos) en vez de
+quedar solo en la consola.
+
+Si después de subir este paquete el problema sigue exactamente igual,
+revisa esto en orden:
+1. Google Cloud Console > APIs y servicios > Credenciales > tu API key >
+   "Restricciones de API": si está restringida, confirma que "Cloud
+   Firestore API" esté permitida (no solo Identity Toolkit / Auth).
+2. Prueba el sitio en una ventana de incógnito sin extensiones, o desde
+   datos móviles en vez de wifi, para descartar un bloqueo de tu propia
+   red o navegador.
+3. Si nada de esto lo resuelve, el camino más rápido es crear un
+   proyecto de Firebase nuevo desde cero (Firebase Console > Agregar
+   proyecto), repetir los pasos de la sección de abajo con ese proyecto
+   nuevo, y actualizar js/config.js con sus credenciales — así se
+   descarta cualquier configuración rara heredada del proyecto actual.
+
 CÓMO PUBLICARLA DE VERDAD CON FIREBASE Y CLOUDINARY
 -----------------------------------------------------
 Mientras la abras en tu computador (o cualquier "localhost"), todo es
