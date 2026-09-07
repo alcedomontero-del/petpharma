@@ -47,7 +47,7 @@ const auth = getAuth(app);
 // internet (incluido Firebase Auth) funcione normal. Este ajuste resuelve la
 // gran mayoría de esos casos sin pedirle nada al usuario final.
 // Lo que pegaste (INCORRECTO):
-const db = initializeFirestore(app, "default");
+
 
 // Lo correcto:
 const db = initializeFirestore(app, {
