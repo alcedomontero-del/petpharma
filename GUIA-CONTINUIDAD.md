@@ -396,6 +396,66 @@ Pendiente de que el usuario confirme en su navegador real:
   nuevo desde cero como última opción — pasos para eso ya están en
   LEEME.txt sección "CORRECCIÓN v1_7".
 
+## v1_8 — agente de chat "Vico" (asistente de medicamentos en la tienda)
+El usuario compartió un plan que le dio Gemini para una tienda de autopartes
+con un chat "Vulky" (DeepSeek/NVIDIA API llamada directo desde el navegador,
+sin servidor) y pidió adaptar esa idea a PetPharma: un agente que dé
+descripción de todos los medicamentos que se suban. Primera versión
+(entregada como petpharma_v1_8.zip) usó ese mismo patrón con DeepSeek. El
+usuario luego pidió específicamente que fuera 100% gratis y sin backend, y
+preguntó si Firebase tenía alguna opción propia — sí la tiene, así que se
+reemplazó DeepSeek por **Firebase AI Logic** en la misma entrega v1_8 antes
+de que el usuario llegara a configurar la versión DeepSeek.
+
+Implementado en `js/chat-agent.js` (archivo nuevo, ahora `type="module"`
+porque el SDK de Firebase AI Logic se importa por ES modules desde gstatic,
+igual que ya hace `firebase-real.js`; autocontenido — crea su propio
+HTML/CSS por JS igual que el patrón ya usado por el toast y el lightbox en
+`ui.js`, no toca ningún `id` existente):
+- Burbuja flotante abajo a la derecha + panel de chat. Historial de la
+  conversación vive en `chatSession` (objeto de Firebase AI Logic) SOLO en
+  memoria de la pestaña — no se guarda en Firestore/localStorage.
+- Al arrancar (`window.cuandoDBListo`), llama a `window.DB.getProductos()` +
+  `getCategorias()` — el MISMO catálogo real que usa la tienda pública — y
+  arma un resumen de cada medicamento (marca, principio activo, categoría,
+  especies, precio, stock, si requiere receta, dosis/indicaciones/
+  descripción) que se manda como `systemInstruction` del modelo. Si el
+  admin sube/edita/borra un medicamento, el agente lo sabe automáticamente
+  la próxima vez que alguien recargue la página y abra el chat.
+- **Por qué Firebase AI Logic y no DeepSeek/NVIDIA**: usa la capa gratuita
+  de la Gemini Developer API (sin tarjeta, sin Plan Blaze) a través del
+  MISMO proyecto Firebase que el usuario ya tiene en `FIREBASE_CONFIG` —
+  no hace falta crear cuenta en otro proveedor ni pegar una API key nueva
+  en el código. Es más seguro que el patrón DeepSeek original porque no
+  hay una clave secreta suelta en el navegador: usa la config pública
+  normal de Firebase + (opcionalmente, y obligatorio desde el 2 nov. 2026)
+  Firebase App Check con reCAPTCHA v3 para verificar que las peticiones
+  vienen del propio sitio.
+- `js/config.js`: se quitó el bloque de DeepSeek; `AGENTE_IA_CONFIG` ahora
+  solo tiene `nombreAgente`, `mensajeBienvenida`, `modelo`
+  (`gemini-2.5-flash` por defecto) y `appCheckSiteKey` (vacío por defecto,
+  opcional hasta nov. 2026). El widget revisa si `FIREBASE_CONFIG.apiKey`
+  ya es real (no placeholder `"TU_..."`) para decidir si avisa "no
+  configurado" — como el proyecto ya tenía Firebase configurado de una
+  ronda anterior, el agente queda activo sin tocar config.js.
+- `index.html`: el script pasó a `<script type="module" src="js/chat-
+  agent.js"></script>`, al final, después de `app.js`. Solo en la tienda
+  pública, no en `admin.html` ni `login.html`.
+- Requisito pendiente del lado del usuario (una sola vez, gratis, en la
+  consola de Firebase): activar "AI Logic" → "Gemini Developer API" para
+  el proyecto. Documentado en comentarios de `chat-agent.js`/`config.js` y
+  en `LEEME.txt`.
+
+Revalidado: `node --check` sobre `config.js` y una copia `.mjs` de
+`chat-agent.js` sin errores. No se probó en navegador real ni contra la
+API real de Gemini (requiere que el usuario active AI Logic en su consola
+de Firebase primero).
+
+Pendiente si se retoma: confirmar con el usuario que activó "AI Logic" en
+su consola de Firebase, y si el 2 de noviembre de 2026 ya pasó, confirmar
+que configuró `appCheckSiteKey` (si no, el agente dejará de responder por
+la exigencia de App Check).
+
 ## Pendiente / siguiente paso si retomas esto
 1. Cuando el usuario (u otra sesión) pueda abrir esto en un navegador
    real, probar de punta a punta: agregar/editar/eliminar producto

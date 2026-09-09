@@ -158,3 +158,39 @@ También se simplificó el login: ya no existen cuentas de "cliente"
 pedidos por cuenta — cualquier persona compra y sube su receta sin
 necesidad de registrarse, igual que antes. Solo existe una cuenta:
 la del administrador/regente farmacéutico.
+
+CÓMO ACTIVAR "VICO" — EL ASISTENTE DE CHAT DE LA TIENDA
+----------------------------------------------------------
+Vico es la burbuja de chat 💬 que aparece abajo a la derecha en la tienda
+pública. Responde preguntas de los clientes usando tu catálogo REAL de
+medicamentos (precio, stock, si requiere receta, dosis, etc.) — es 100%
+gratis y no necesita servidor propio, corre con Firebase AI Logic (Gemini)
+usando el MISMO proyecto Firebase que ya configuraste para el resto de la
+tienda.
+
+Para activarlo (una sola vez, gratis, sin tarjeta):
+1. Ve a https://console.firebase.google.com > tu proyecto > "AI Logic" en
+   el menú lateral (a veces aparece bajo "Build") > Comenzar.
+2. Elige el proveedor "Gemini Developer API" (NO "Vertex AI" / "Agent
+   Platform") — esa es la que tiene capa gratuita sin pedir tarjeta ni
+   subir tu proyecto al plan de pago Blaze.
+3. Listo. No hace falta tocar código: Vico ya usa las credenciales de
+   FIREBASE_CONFIG que pusiste en js/config.js.
+
+IMPORTANTE — fecha límite del 2 de noviembre de 2026:
+A partir de esa fecha, Firebase exige "App Check" (verificación de que las
+peticiones vienen de tu propio sitio) para poder usar AI Logic. Antes de
+esa fecha, o para configurarlo ya y no tener que acordarte después:
+1. Firebase Console > tu proyecto > "App Check" > "Apps registradas" >
+   registra tu app web.
+2. Elige el proveedor "reCAPTCHA v3", sigue los pasos (te pedirá el
+   dominio real donde vas a publicar la tienda) y copia la "site key" que
+   te den.
+3. Pégala en js/config.js, dentro de AGENTE_IA_CONFIG, en el campo
+   "appCheckSiteKey".
+Si no lo configuras a tiempo, Vico simplemente dejará de responder después
+de esa fecha hasta que lo actives — no rompe nada más de la tienda.
+
+Vico solo habla de lo que está en tu catálogo real: si subes un
+medicamento nuevo desde el panel admin, Vico lo conoce automáticamente la
+próxima vez que alguien recargue la tienda y abra el chat.

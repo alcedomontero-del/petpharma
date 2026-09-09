@@ -46,16 +46,12 @@ const auth = getAuth(app);
 // "Failed to get document because the client is offline" aunque el resto de
 // internet (incluido Firebase Auth) funcione normal. Este ajuste resuelve la
 // gran mayoría de esos casos sin pedirle nada al usuario final.
-// Lo que pegaste (INCORRECTO):
-
 
 // Lo correcto:
 const db = initializeFirestore(app, {
   experimentalAutoDetectLongPolling: true,
   useFetchStreams: false,
 }, "default");
-
-
 async function subirImagenCloudinary(archivo) {
   if (!archivo) return "";
   const { cloudName, uploadPreset } = window.CLOUDINARY_CONFIG;
