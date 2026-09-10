@@ -27,13 +27,22 @@
  *
  * Firebase exige "App Check" (verificación de que la app es la tuya)
  * para usar AI Logic a partir del 2 de noviembre de 2026. Antes de
- * esa fecha, o si ya configuraste una site key de reCAPTCHA v3 en
+ * esa fecha, o si ya configuraste una site key de reCAPTCHA en
  * window.AGENTE_IA_CONFIG.appCheckSiteKey (ver config.js), Vico
  * funciona igual; guía de cómo sacar esa site key en LEEME.txt.
+ *
+ * Firebase ahora recomienda reCAPTCHA Enterprise para integraciones
+ * nuevas (más señales anti-fraude que v3, y sigue siendo gratis hasta
+ * 10,000 verificaciones/mes). Por eso este archivo usa
+ * ReCaptchaEnterpriseProvider por defecto. Si en vez de eso registraste
+ * tu app con el proveedor "reCAPTCHA v3" clásico en la consola de
+ * Firebase, cambia window.AGENTE_IA_CONFIG.appCheckProveedor a "v3" en
+ * config.js (ver comentario ahí) — el site key de un proveedor NO
+ * funciona con el otro, así que deben coincidir.
  * ---------------------------------------------------------
  */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app-check.js";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app-check.js";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js";
 
 let chatSession = null;
@@ -116,8 +125,14 @@ async function iniciarSesionDeChat() {
   const siteKey = cfg().appCheckSiteKey;
   if (siteKey) {
     try {
+      // "enterprise" (default) o "v3" — debe coincidir con el proveedor
+      // que elegiste al registrar la app en Firebase Console → App Check.
+      const proveedor = cfg().appCheckProveedor || "enterprise";
+      const provider = proveedor === "v3"
+        ? new ReCaptchaV3Provider(siteKey)
+        : new ReCaptchaEnterpriseProvider(siteKey);
       initializeAppCheck(firebaseApp, {
-        provider: new ReCaptchaV3Provider(siteKey),
+        provider,
         isTokenAutoRefreshEnabled: true,
       });
     } catch (error) {

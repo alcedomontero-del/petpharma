@@ -46,18 +46,25 @@ window.CLOUDINARY_CONFIG = {
  *      → Comenzar → elige "Gemini Developer API" (la que NO pide
  *      tarjeta ni Plan Blaze). Con eso ya queda activo.
  *   2. (Recomendado, obligatorio a partir del 2 nov. 2026) Firebase
- *      Console → "App Check" → registra tu app web con reCAPTCHA v3
- *      → copia la "site key" y pégala abajo en appCheckSiteKey. Guía
- *      paso a paso en LEEME.txt.
+ *      Console → "App Check" → registra tu app web. La consola ahora
+ *      ofrece "reCAPTCHA Enterprise" como opción principal (gratis
+ *      hasta 10,000 verificaciones/mes) — si eliges esa, deja
+ *      appCheckProveedor en "enterprise" (default). Si en cambio
+ *      elegiste el proveedor clásico "reCAPTCHA v3", cambia
+ *      appCheckProveedor a "v3". Copia la "site key" que te den y
+ *      pégala abajo en appCheckSiteKey. Guía paso a paso en LEEME.txt.
+ *      IMPORTANTE: el site key de un proveedor no sirve para el otro
+ *      — deben coincidir exactamente con lo que registraste.
  *
- * "modelo" usa gemini-2.5-flash por defecto (estable en la capa
- * gratuita). Puedes cambiarlo por otro modelo Flash más nuevo si
- * Google lo agrega a la capa gratuita más adelante.
+ * "modelo" usa gemini-3.7-flash por defecto (estable, gratis, sin
+ * Plan Blaze). NO uses gemini-2.5-flash: esos modelos se dan de baja
+ * en octubre de 2026 y dejarán de responder (error 404).
  */
 window.AGENTE_IA_CONFIG = {
   nombreAgente: "Vico",
   mensajeBienvenida: "",
-  modelo: "gemini-2.5-flash",
+  modelo: "gemini-3.7-flash",
   appCheckSiteKey: "",
+  appCheckProveedor: "enterprise", // "enterprise" o "v3" — debe coincidir con lo elegido en Firebase Console → App Check
 };
 
