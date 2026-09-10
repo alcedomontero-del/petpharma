@@ -64,7 +64,7 @@ window.AGENTE_IA_CONFIG = {
   nombreAgente: "Vico",
   mensajeBienvenida: "",
   modelo: "gemini-3.7-flash",
-  appCheckSiteKey: "",
+  appCheckSiteKey: "6LdUY7QtAAAAABNKrxO6As83tJoyFWj8HjqLA8V5",
   appCheckProveedor: "enterprise", // "enterprise" o "v3" — debe coincidir con lo elegido en Firebase Console → App Check
 };
 
